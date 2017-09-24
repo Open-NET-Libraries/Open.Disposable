@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Description>Provides a set of useful classes when implementing a disposable.
+
+Part of the "Open" set of libraries.</Description>
+    <Authors>electricessence</Authors>
+    <Company />
+    <Product />
+    <PackageLicenseUrl>https://github.com/electricessence/Open/blob/master/LICENSE</PackageLicenseUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Open.Diagnostics" Version="1.0.0" />
+  </ItemGroup>
+
+</Project>
