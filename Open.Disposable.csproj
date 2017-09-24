@@ -10,6 +10,7 @@ Part of the "Open" set of libraries.</Description>
     <Company />
     <Product />
     <PackageLicenseUrl>https://github.com/electricessence/Open/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageTags>dotnet, dotnetcore, cs, idisposable, disposablebase, disposable-pattern, extensions, threadsafe, thread-safe</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
