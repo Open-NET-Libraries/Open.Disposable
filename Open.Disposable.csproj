@@ -9,8 +9,13 @@ Part of the "Open" set of libraries.</Description>
     <Authors>electricessence</Authors>
     <Company />
     <Product />
-    <PackageLicenseUrl>https://github.com/electricessence/Open/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl>https://github.com/electricessence/Open.Disposable/blob/master/LISCENSE.md</PackageLicenseUrl>
     <PackageTags>dotnet, dotnetcore, cs, idisposable, disposablebase, disposable-pattern, extensions, threadsafe, thread-safe</PackageTags>
+    <Copyright>https://github.com/electricessence/Open.Disposable/blob/master/LISCENSE.md</Copyright>
+    <PackageIconUrl></PackageIconUrl>
+    <PackageProjectUrl>https://github.com/electricessence/Open.Disposable/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/electricessence/Open.Disposable/</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
