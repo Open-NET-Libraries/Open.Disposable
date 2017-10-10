@@ -19,7 +19,14 @@ Part of the "Open" set of libraries.</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Open.Diagnostics" Version="1.0.0" />
+    <None Remove=".git" />
+    <None Remove=".gitignore" />
+    <None Remove="LISCENSE.md" />
+    <None Remove="README.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Open.Diagnostics" Version="1.0.1" />
   </ItemGroup>
 
 </Project>
