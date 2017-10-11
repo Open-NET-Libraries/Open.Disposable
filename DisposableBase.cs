@@ -87,6 +87,20 @@ namespace Open.Disposable
 			return true;
 		}
 
+		protected static TNullable Nullify<TNullable>(ref TNullable x)
+			where TNullable : class
+		{
+			var y = x;
+			x = null;
+			return y;
+		}
+
+		protected static void DisposeOf(ref IDisposable x)
+		{
+			var y = x;
+			x = null;
+			y?.Dispose();
+		}
 
 	}
 
