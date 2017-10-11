@@ -95,7 +95,8 @@ namespace Open.Disposable
 			return y;
 		}
 
-		protected static void DisposeOf(ref IDisposable x)
+		protected static void DisposeOf<T>(ref T x)
+			where T : class, IDisposable
 		{
 			var y = x;
 			x = null;
