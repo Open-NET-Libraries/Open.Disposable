@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp1.1</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Description>Provides a set of useful classes when implementing a disposable.
+    <Description>Provides a set of useful classes when implementing a disposable or dealing with disposables.
 
 Part of the "Open" set of libraries.</Description>
     <Authors>electricessence</Authors>
@@ -16,7 +16,7 @@ Part of the "Open" set of libraries.</Description>
     <PackageProjectUrl>https://github.com/electricessence/Open.Disposable/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/electricessence/Open.Disposable/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>1.0.2</Version>
+    <Version>1.0.4</Version>
   </PropertyGroup>
 
   <ItemGroup>

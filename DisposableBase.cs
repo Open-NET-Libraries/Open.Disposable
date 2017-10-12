@@ -1,10 +1,11 @@
 ﻿/*!
  * @author electricessence / https://github.com/electricessence/
- * Licensing: MIT https://github.com/electricessence/Open/blob/dotnet-core/LICENSE.md
+ * Licensing: MIT https://github.com/electricessence/Open.Disposable/blob/dotnet-core/LICENSE.md
  */
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 
@@ -105,40 +106,4 @@ namespace Open.Disposable
 
 	}
 
-	public static class DisposableExtensions
-	{
-
-        /// <summary>
-        /// A useful utility extension for disposing of a list of disposables.
-        /// </summary>
-        /// <param name="target"></param>
-		public static void DisposeAll(this IEnumerable<IDisposable> target)
-		{
-			if (target == null)
-				throw new ArgumentNullException("target");
-
-			foreach (var d in target)
-			{
-				if (d != null)
-					d.Dispose();
-			}
-		}
-
-        /// <summary>
-        /// This extension calls .Clear() on a collection and then .Dispose() if that collection is IDisposable.
-        /// </summary>
-        /// <typeparam name="T">The generic type for the collection.</typeparam>
-        /// <param name="target">The target collection to be disposed.</param>
-		public static void Dispose<T>(this ICollection<T> target)
-		{
-			if (target != null)
-			{
-				target.Clear();
-				if (target is IDisposable)
-				{
-					((IDisposable)target).Dispose();
-				}
-			}
-		}
-	}
 }
