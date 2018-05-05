@@ -3,10 +3,10 @@
  * Licensing: MIT https://github.com/electricessence/Open/blob/dotnet-core/LICENSE.md
  */
 
+using Open.Diagnostics;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Open.Diagnostics;
 
 
 namespace Open.Disposable
@@ -33,7 +33,7 @@ namespace Open.Disposable
 			set
 			{
 				if (value < 0)
-					throw new ArgumentOutOfRangeException("value", value, "Cannot be a negative value.");
+					throw new ArgumentOutOfRangeException(nameof(value), value, "Cannot be a negative value.");
 				_cleanupDelay = value;
 			}
 		}

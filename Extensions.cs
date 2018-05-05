@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -17,7 +18,8 @@ namespace Open.Disposable
 		public static void DisposeAll(this IEnumerable<IDisposable> target)
 		{
 			if (target == null)
-				throw new ArgumentNullException("target");
+				throw new ArgumentNullException(nameof(target));
+			Contract.EndContractBlock();
 
 			foreach (var d in target)
 			{

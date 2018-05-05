@@ -4,20 +4,18 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 
 
 namespace Open.Disposable
 {
 
-    /// <summary>
-    /// A base class for implementing other disposables.  Properly implements the (thread-safe) dispose pattern using DisposeHelper.
-    /// 
-    /// Provides useful properties and methods to allow for checking if this instance has already been disposed and provides a "BeforeDispose" event for other classes to react to.
-    /// </summary>
-    public abstract class DisposableBase : IDisposable
+	/// <summary>
+	/// A base class for implementing other disposables.  Properly implements the (thread-safe) dispose pattern using DisposeHelper.
+	/// 
+	/// Provides useful properties and methods to allow for checking if this instance has already been disposed and provides a "BeforeDispose" event for other classes to react to.
+	/// </summary>
+	public abstract class DisposableBase : IDisposable
 	{
 		protected DisposeHelper DisposingHelper = new DisposeHelper();
 
@@ -41,7 +39,7 @@ namespace Open.Disposable
 			finally
 			{
 				Interlocked.Exchange(ref DisposingHelper, null)?
-                    .Dispose(this, OnDispose, calledExplicitly);
+					.Dispose(this, OnDispose, calledExplicitly);
 			}
 		}
 
@@ -57,14 +55,14 @@ namespace Open.Disposable
 			Dispose(false);
 		}
 
-        /// <summary>
-        /// This event is triggered by the DisposeHelper immediately before 
-        /// </summary>
+		/// <summary>
+		/// This event is triggered by the DisposeHelper immediately before 
+		/// </summary>
 		public event EventHandler BeforeDispose;
 		internal void FireBeforeDispose()
 		{
-            // Events should only fire if there are listeners...
-            if (BeforeDispose != null)
+			// Events should only fire if there are listeners...
+			if (BeforeDispose != null)
 			{
 				BeforeDispose(this, EventArgs.Empty);
 				BeforeDispose = null;
