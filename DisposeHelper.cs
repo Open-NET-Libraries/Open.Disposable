@@ -10,12 +10,9 @@ namespace Open.Disposable
 	/// </summary>
 	public sealed class DisposeHelper
 	{
-		enum State : int
-		{
-			Alive = 0,
-			Disposing = 1,
-			Disposed = 2
-		}
+		const int ALIVE = 0;
+		const int DISPOSING = 1;
+		const int DISPOSED = 2;
 
 		// Since all write operations are done through Interlocked, no need for volatile.
 		private int _disposeState;
@@ -23,10 +20,7 @@ namespace Open.Disposable
 		/// <summary>
 		/// Returns true if the container instance has not yet been disposed nor is in the process of disposing.
 		/// </summary>
-		public bool IsAlive
-		{
-			get { return _disposeState == (int)State.Alive; }
-		}
+		public bool IsAlive => _disposeState == ALIVE;
 
 		/// <summary>
 		/// Will throw an ObjectDisposedException if the container instance is no longer alive (in the proccess of disposing or already disposed).
@@ -35,17 +29,14 @@ namespace Open.Disposable
 		public void AssertIsAlive()
 		{
 			if (!IsAlive)
-				throw new ObjectDisposedException(this.ToString());
+				throw new ObjectDisposedException(ToString());
 		}
 
 
 		/// <summary>
 		/// Returns true if the container instance is no longer alive (in the proccess of disposing or already disposed).
 		/// </summary>
-		public bool IsDisposed
-		{
-			get { return _disposeState == (short)State.Disposed; }
-		}
+		public bool IsDisposed => _disposeState == DISPOSED;
 
 		public event EventHandler BeforeDispose;
 
@@ -59,7 +50,7 @@ namespace Open.Disposable
 		public void Dispose(IDisposable target, Action<bool> OnDispose, bool calledExplicitly)
 		{
 			// Lock disposal...
-			if (0 == Interlocked.CompareExchange(ref _disposeState, 1, 0)) // IsAlive? Yes? Mark as State.Disposing
+			if (ALIVE == Interlocked.CompareExchange(ref _disposeState, DISPOSING, ALIVE)) // IsAlive? Yes? Mark as State.Disposing
 			{
 				// For calledExplicitly, throw on errors.
 				// If by the GC (aka finalizer) don't throw,
@@ -105,7 +96,7 @@ namespace Open.Disposable
 						throw;
 				}
 
-				Interlocked.Exchange(ref _disposeState, 2); // State.Disposed
+				Interlocked.Exchange(ref _disposeState, DISPOSED); // State.Disposed
 			}
 
 			// This object will be cleaned up by the Dispose method.
@@ -114,6 +105,7 @@ namespace Open.Disposable
 			// and prevent finalization code for this object
 			// from executing a second time.
 			if (calledExplicitly)
+				// ReSharper disable once GCSuppressFinalizeForTypeWithoutDestructor
 				GC.SuppressFinalize(target);
 
 		}

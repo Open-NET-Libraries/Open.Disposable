@@ -13,9 +13,6 @@ namespace Open.Disposable
 {
 	public abstract class DeferredCleanupBase : DisposableBase
 	{
-
-		protected DeferredCleanupBase() : base() { }
-
 		public enum CleanupMode
 		{
 			ImmediateSynchronous, // Cleanup immediately within the current thread.
@@ -29,7 +26,7 @@ namespace Open.Disposable
 		// So far 50 ms seems optimal...
 		public int CleanupDelay
 		{
-			get { return _cleanupDelay; }
+			get => _cleanupDelay;
 			set
 			{
 				if (value < 0)
@@ -45,9 +42,7 @@ namespace Open.Disposable
 		}
 
 		public bool IsCleanupPastDue
-		{
-			get { return DateTime.Now.Ticks - (_cleanupDelay + 100) * TimeSpan.TicksPerMillisecond > LastCleanup.Ticks; }
-		}
+			=> DateTime.Now.Ticks - (_cleanupDelay + 100) * TimeSpan.TicksPerMillisecond > LastCleanup.Ticks;
 
 		public bool IsRunning
 		{
@@ -55,13 +50,13 @@ namespace Open.Disposable
 			private set;
 		}
 
-		private readonly object _timerSync = new Object();
+		private readonly object _timerSync = new object();
 		private Timer _cleanupTimer;
 
 
 		protected void ResetTimer()
 		{
-			Timer ct2 = null;
+			Timer ct2;
 			lock (_timerSync)
 			{
 				ct2 = Interlocked.Exchange(ref _cleanupTimer, null);
@@ -119,21 +114,16 @@ namespace Open.Disposable
 
 		public void DeferCleanup()
 		{
-			if (!IsDisposed)
+			if (IsDisposed) return;
+			lock (_timerSync)
 			{
-				lock (_timerSync)
-				{
-					if (!IsDisposed)
-					{
+				if (IsDisposed) return;
+				IsRunning = true;
 
-						IsRunning = true;
-
-						if (_cleanupTimer == null)
-							_cleanupTimer = new Timer(Cleanup, null, _cleanupDelay, Timeout.Infinite);
-						else
-							_cleanupTimer.Change(_cleanupDelay, Timeout.Infinite);
-					}
-				}
+				if (_cleanupTimer == null)
+					_cleanupTimer = new Timer(Cleanup, null, _cleanupDelay, Timeout.Infinite);
+				else
+					_cleanupTimer.Change(_cleanupDelay, Timeout.Infinite);
 			}
 		}
 

@@ -44,6 +44,7 @@ namespace Open.Disposable
 		}
 
 		// Can occur multiple times.
+		// ReSharper disable once VirtualMemberNeverOverridden.Global
 		protected virtual void OnBeforeDispose() { }
 
 		// Occurs only once.
@@ -69,19 +70,17 @@ namespace Open.Disposable
 			}
 		}
 
-		public bool IsDisposed
-		{
-			get
-			{
-				return !(DisposingHelper?.IsAlive ?? false);
-			}
-		}
+		/// <summary>
+		/// Returns true if this instance has been disposed.
+		/// </summary>
+		// ReSharper disable once MemberCanBeProtected.Global
+		public bool IsDisposed => !(DisposingHelper?.IsAlive ?? false);
 
 		public bool AssertIsAlive()
 		{
 			//Contract.Ensures(!IsDisposed);
 			if (IsDisposed)
-				throw new ObjectDisposedException(this.ToString());
+				throw new ObjectDisposedException(ToString());
 
 			return true;
 		}
