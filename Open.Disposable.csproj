@@ -1,23 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Description>Provides a set of useful classes when implementing a disposable or dealing with disposables.
+    <Description>
+      Provides a set of useful classes when implementing a disposable or dealing with disposables.
 
-Part of the "Open" set of libraries.</Description>
+      Part of the "Open" set of libraries.
+    </Description>
     <Authors>electricessence</Authors>
     <Company />
     <Product />
-    <PackageLicenseUrl>https://github.com/electricessence/Open.Disposable/blob/master/LISCENSE.md</PackageLicenseUrl>
     <PackageTags>dotnet, dotnetcore, cs, idisposable, disposablebase, disposable-pattern, extensions, threadsafe, thread-safe</PackageTags>
     <Copyright>https://github.com/electricessence/Open.Disposable/blob/master/LISCENSE.md</Copyright>
     <PackageIconUrl></PackageIconUrl>
     <PackageProjectUrl>https://github.com/electricessence/Open.Disposable/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/electricessence/Open.Disposable/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>1.2.1</Version>
-    <PackageReleaseNotes>Inspection pass and dependency cleanup.</PackageReleaseNotes>
+    <Version>2.0.0-preview3</Version>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <AssemblyVersion>2.0.0.3</AssemblyVersion>
+    <FileVersion>2.0.0.3</FileVersion>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -35,9 +39,12 @@ Part of the "Open" set of libraries.</Description>
     <None Remove="README.md" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Open.Diagnostics" Version="1.3.0" />
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.2" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
+
   </ItemGroup>
 
 </Project>

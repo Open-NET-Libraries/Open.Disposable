@@ -18,7 +18,7 @@ namespace Open.Disposable
 
 		Func<ValueTask> _action;
 
-		protected override ValueTask OnDisposeAsync()
+		protected override ValueTask OnDisposeAsync(AsyncDisposeMode mode)
 			=> Interlocked.Exchange(ref _action, null).Invoke();
 	}
 }

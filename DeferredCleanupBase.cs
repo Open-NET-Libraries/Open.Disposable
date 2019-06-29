@@ -3,11 +3,10 @@
  * Licensing: MIThttps://github.com/electricessence/Open.Disposable/blob/master/LISCENSE.md
  */
 
-using Open.Diagnostics;
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-
 
 namespace Open.Disposable
 {
@@ -66,7 +65,7 @@ namespace Open.Disposable
 
 		public void SetCleanup(CleanupMode mode = CleanupMode.Deferred)
 		{
-			if (IsDisposed)
+			if (WasDisposed)
 				return;
 
 			switch (mode)
@@ -96,7 +95,7 @@ namespace Open.Disposable
 				case CleanupMode.ImmediateDeferred:
 					lock (_timerSync)
 					{
-						if (!IsDisposed && LastCleanup != DateTime.MaxValue)
+						if (!WasDisposed && LastCleanup != DateTime.MaxValue)
 						{
 							// No past due action in order to prevent another thread from firing...
 							LastCleanup = DateTime.MaxValue;
@@ -114,10 +113,10 @@ namespace Open.Disposable
 
 		public void DeferCleanup()
 		{
-			if (IsDisposed) return;
+			if (WasDisposed) return;
 			lock (_timerSync)
 			{
-				if (IsDisposed) return;
+				if (WasDisposed) return;
 				IsRunning = true;
 
 				if (_cleanupTimer == null)
@@ -141,7 +140,7 @@ namespace Open.Disposable
 
 		private void Cleanup(object state = null)
 		{
-			if (IsDisposed)
+			if (WasDisposed)
 				return; // If another thread enters here after disposal don't allow.
 
 			try
@@ -150,9 +149,8 @@ namespace Open.Disposable
 			}
 			catch (Exception ex)
 			{
-				ex.WriteToDebug();
+				Debug.WriteLine(ex.ToString());
 			}
-
 
 			lock (_timerSync)
 			{

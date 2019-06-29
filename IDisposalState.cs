@@ -7,6 +7,6 @@
 {
     public interface IDisposalState
 	{
-		DisposeState DisposeState { get; }
+		bool WasDisposed { get; }
 	}
 }

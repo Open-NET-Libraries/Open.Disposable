@@ -2,7 +2,7 @@
  * @author electricessence / https://github.com/electricessence/
  * Licensing: MIThttps://github.com/electricessence/Open.Disposable/blob/master/LISCENSE.md
  */
- 
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -12,27 +12,9 @@ namespace Open.Disposable
 {
 	public static class DisposableExtensions
 	{
-		public static bool IsAlive(this IDisposalState state)
-			=> state.DisposeState == DisposeState.Alive;
-
-		public static bool WasDisposed(this IDisposalState state)
-			=> state.DisposeState != DisposeState.Alive;
-
-		public static bool IfAlive<TState>(this TState state, Action action)
-			where TState : class, IDisposalState
+		public static bool AssertIsAlive(this IDisposalState state)
 		{
-			if(state==null || state.WasDisposed()) return false;
-			lock(state)
-			{
-				if(state.WasDisposed()) return false;
-				action();
-			}
-			return true;
-		}
-
-        public static bool AssertIsAlive(this IDisposalState state)
-		{
-			if (state.DisposeState == DisposeState.Alive)
+			if (state.WasDisposed)
 				throw new ObjectDisposedException(state.ToString());
 
 			return true;

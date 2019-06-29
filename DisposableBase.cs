@@ -4,15 +4,14 @@
  */
 
 using System;
+using System.Diagnostics;
 
 namespace Open.Disposable
 {
-
-    /// <summary>
-    /// A base class for implementing other disposables.  Properly implements the (thread-safe) dispose pattern using DisposeHelper.
-    /// 
-    /// Provides useful properties and methods to allow for checking if this instance has already been disposed and provides a "BeforeDispose" event for other classes to react to.
-    /// </summary>
+	/// <summary>
+	/// A base class for properly implementing the synchronous dispose pattern.
+	/// Implement OnDispose to handle disposal.
+	/// </summary>
     public abstract class DisposableBase : DisposableStateBase, IDisposable
 	{
         /// <inheritdoc />
@@ -27,20 +26,51 @@ namespace Open.Disposable
 			Dispose(false);
 		}
 
+		/// <summary>
+		/// When implemented will be called (only once) when being disposed.
+		/// </summary>
+		/// <param name="calledExplicitly">True if called through code in the runtime, or false if finalized by the garbage collector.</param>
 		protected abstract void OnDispose(bool calledExplicitly);
 
-        private void Dispose(bool calledExplicitly)
-        {
-            if (!StartDispose())
-                return;
-			
-            if(calledExplicitly)
-			    GC.SuppressFinalize(this);
+		protected bool StartDispose(bool calledExplicitly)
+		{
+			try
+			{
+				if (StartDispose())
+					return true;
 
+				// Already called?  No need to GC suppress.
+				calledExplicitly = false;
+				return false;
+			}
+			catch (Exception eventBeforeDisposeException) when (!calledExplicitly)
+			{
+				if (Debugger.IsAttached)
+					Debug.Fail(eventBeforeDisposeException.ToString());
+
+				return true; // If we even got this far with !calledExplicitly then it must be the first time and we should proceed.
+			}
+			finally
+			{
+				if (calledExplicitly)
+					GC.SuppressFinalize(this);
+			}
+		}
+
+		private void Dispose(bool calledExplicitly)
+        {
+			if (!StartDispose(calledExplicitly))
+				return;
+			
             try
             {
 				OnDispose(calledExplicitly);
             }
+            catch (Exception onDisposeException) when (!calledExplicitly)
+            {
+                if (Debugger.IsAttached)
+                    Debug.Fail(onDisposeException.ToString());
+            }             
             finally
             {
                 Disposed();
