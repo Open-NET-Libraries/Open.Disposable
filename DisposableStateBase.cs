@@ -2,7 +2,7 @@
  * @author electricessence / https://github.com/electricessence/
  * Licensing: MIThttps://github.com/electricessence/Open.Disposable/blob/master/LISCENSE.md
  */
- 
+
 using System;
 using System.Threading;
 
@@ -16,11 +16,48 @@ namespace Open.Disposable
         protected const int DISPOSED = 2;
 
         // Since all write operations are done through Interlocked, no need for volatile.
-        private int _disposeState;
+        private int _disposeCalled = ALIVE;
+        private int _disposeState = ALIVE;
         public DisposeState DisposeState => (DisposeState)_disposeState;
+
+        /* This is important because some classes might react to disposal
+         * and still need access to the live class before it's disposed. */
+        #region Before Disposal
+		protected virtual void OnBeforeDispose() { }
+
+		/// <summary>
+		/// This event is triggered by the DisposeHelper immediately before 
+		/// </summary>
+		public event EventHandler BeforeDispose;
+		internal void FireBeforeDispose()
+		{
+			// Events should only fire if there are listeners...
+			if (BeforeDispose != null)
+			{
+				BeforeDispose(this, EventArgs.Empty);
+				BeforeDispose = null;
+			}
+		}
+        #endregion
+
+
         protected bool StartDispose()
-            => _disposeState == ALIVE
-            && Interlocked.CompareExchange(ref _disposeState, DISPOSING, ALIVE) == ALIVE;
+        {
+            if(_disposeCalled == ALIVE
+            && Interlocked.CompareExchange(ref _disposeCalled, DISPOSING, ALIVE) == ALIVE)
+            {
+                try {
+
+                }
+                finally {
+                    if(_disposeState == ALIVE)
+                        Interlocked.CompareExchange(ref _disposeState, DISPOSING, ALIVE);
+                }
+                return true;
+            }
+
+            return false;
+        }
 
         protected void Disposed()
             => Interlocked.Exchange(ref _disposeState, DISPOSED); // State.Disposed

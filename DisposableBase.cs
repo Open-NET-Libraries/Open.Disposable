@@ -34,7 +34,8 @@ namespace Open.Disposable
             if (!StartDispose())
                 return;
 			
-			GC.SuppressFinalize(this);
+            if(calledExplicitly)
+			    GC.SuppressFinalize(this);
 
             try
             {
