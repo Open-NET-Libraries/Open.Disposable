@@ -1,6 +1,6 @@
 /*!
  * @author electricessence / https://github.com/electricessence/
- * Licensing: MIT https://github.com/electricessence/Open/blob/dotnet-core/LICENSE.md
+ * Licensing: MIThttps://github.com/electricessence/Open.Disposable/blob/master/LISCENSE.md
  */
 
 using System;
@@ -11,11 +11,12 @@ namespace Open.Disposable
 {
 	public class AsyncDisposeHandler : AsyncDisposableBase
 	{
-		Func<ValueTask> _action;
 		public AsyncDisposeHandler(Func<ValueTask> action)
 		{
 			_action = action ?? throw new ArgumentNullException(nameof(action));
 		}
+
+		Func<ValueTask> _action;
 
 		protected override ValueTask OnDisposeAsync()
 			=> Interlocked.Exchange(ref _action, null).Invoke();

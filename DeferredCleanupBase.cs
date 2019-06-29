@@ -1,6 +1,6 @@
 ﻿/*!
  * @author electricessence / https://github.com/electricessence/
- * Licensing: MIT https://github.com/electricessence/Open/blob/dotnet-core/LICENSE.md
+ * Licensing: MIThttps://github.com/electricessence/Open.Disposable/blob/master/LISCENSE.md
  */
 
 using Open.Diagnostics;

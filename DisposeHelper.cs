@@ -1,4 +1,9 @@
-﻿using System;
+﻿/*!
+ * @author electricessence / https://github.com/electricessence/
+ * Licensing: MIThttps://github.com/electricessence/Open.Disposable/blob/master/LISCENSE.md
+ */
+
+using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
