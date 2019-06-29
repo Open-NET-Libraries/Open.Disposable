@@ -5,19 +5,19 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Open.Disposable
 {
-	public class DisposeHandler : DisposableBase
+	public class AsyncDisposeHandler : AsyncDisposableBase
 	{
-		Action _action;
-		public DisposeHandler(Action action)
+		Func<ValueTask> _action;
+		public AsyncDisposeHandler(Func<ValueTask> action)
 		{
 			_action = action ?? throw new ArgumentNullException(nameof(action));
 		}
 
-		protected override void OnDispose(bool calledExplicitly)
+		protected override ValueTask OnDisposeAsync()
 			=> Interlocked.Exchange(ref _action, null).Invoke();
-		
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Open.Disposable
 {
@@ -23,6 +24,11 @@ namespace Open.Disposable
 		public bool IsAlive => _disposeState == ALIVE;
 
 		/// <summary>
+		/// Returns true if the container instance is no longer alive (in the proccess of disposing or already disposed).
+		/// </summary>
+		public bool IsDisposed => _disposeState != ALIVE;
+
+		/// <summary>
 		/// Will throw an ObjectDisposedException if the container instance is no longer alive (in the proccess of disposing or already disposed).
 		/// </summary>
 		/// <exception cref="ObjectDisposedException">{Object}</exception>
@@ -31,12 +37,6 @@ namespace Open.Disposable
 			if (!IsAlive)
 				throw new ObjectDisposedException(ToString());
 		}
-
-
-		/// <summary>
-		/// Returns true if the container instance is no longer alive (in the proccess of disposing or already disposed).
-		/// </summary>
-		public bool IsDisposed => _disposeState == DISPOSED;
 
 		public event EventHandler BeforeDispose;
 
@@ -47,11 +47,21 @@ namespace Open.Disposable
 		// If calledExplicitly equals false, the method has been called by the
 		// runtime from inside the finalizer and you should not reference
 		// other objects. Only unmanaged resources can be disposed.
-		public void Dispose(IDisposable target, Action<bool> OnDispose, bool calledExplicitly)
+		public ValueTask Dispose(
+			IDisposable target,
+			Func<bool, ValueTask> OnDisposeAsync,
+			Action<bool> OnDispose,
+			bool calledExplicitly)
 		{
+			ValueTask? result = null;
 			// Lock disposal...
-			if (ALIVE == Interlocked.CompareExchange(ref _disposeState, DISPOSING, ALIVE)) // IsAlive? Yes? Mark as State.Disposing
+			if (ALIVE == _disposeState && ALIVE == Interlocked.CompareExchange(ref _disposeState, DISPOSING, ALIVE)) // IsAlive? Yes? Mark as State.Disposing
 			{
+				lock(this) {
+					// Ensure we've gained ownership at this point.
+					// By locking we've allowed any actions to complete,
+					// but nothing else can enter since the dispose state is disposing (not alive).
+				}
 				// For calledExplicitly, throw on errors.
 				// If by the GC (aka finalizer) don't throw,
 				// since it's ignored anyway and creates overhead.
@@ -80,20 +90,41 @@ namespace Open.Disposable
 						throw;
 				}
 
-				// Then do internal cleanup.
-				try
+				if (OnDisposeAsync != null)
 				{
-					OnDispose?.Invoke(calledExplicitly);
-				}
-				catch (Exception onDisposeException)
-				{
-					if (!calledExplicitly)
+					try
 					{
-						if (Debugger.IsAttached)
-							Debug.Fail(onDisposeException.ToString());
+						result = OnDisposeAsync.Invoke(calledExplicitly);
 					}
-					else
-						throw;
+					catch (Exception onDisposeException)
+					{
+						if (!calledExplicitly)
+						{
+							if (Debugger.IsAttached)
+								Debug.Fail(onDisposeException.ToString());
+						}
+						else
+							throw;
+					}
+				}
+
+				if (OnDispose != null)
+				{
+					// Then do internal cleanup.
+					try
+					{
+						OnDispose.Invoke(calledExplicitly);
+					}
+					catch (Exception onDisposeException)
+					{
+						if (!calledExplicitly)
+						{
+							if (Debugger.IsAttached)
+								Debug.Fail(onDisposeException.ToString());
+						}
+						else
+							throw;
+					}
 				}
 
 				Interlocked.Exchange(ref _disposeState, DISPOSED); // State.Disposed
@@ -108,7 +139,8 @@ namespace Open.Disposable
 				// ReSharper disable once GCSuppressFinalizeForTypeWithoutDestructor
 				GC.SuppressFinalize(target);
 
-		}
+			return result ?? new ValueTask();
 
+		}
 	}
 }

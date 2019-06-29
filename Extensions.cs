@@ -5,9 +5,34 @@ using System.Linq;
 
 namespace Open.Disposable
 {
-
 	public static class DisposableExtensions
 	{
+		public static bool IsAlive(this IDisposalState state)
+			=> state.DisposeState == DisposeState.Alive;
+
+		public static bool WasDisposed(this IDisposalState state)
+			=> state.DisposeState != DisposeState.Alive;
+
+		public static bool IfAlive<TState>(this TState state, Action action)
+			where TState : class, IDisposalState
+		{
+			if(state==null || state.WasDisposed()) return false;
+			lock(state)
+			{
+				if(state.WasDisposed()) return false;
+				action();
+			}
+			return true;
+		}
+
+        public static bool AssertIsAlive(this IDisposalState state)
+		{
+			if (state.DisposeState == DisposeState.Alive)
+				throw new ObjectDisposedException(state.ToString());
+
+			return true;
+		}
+
 		/// <summary>
 		/// A useful utility extension for disposing of a list of disposables.
 		/// </summary>
