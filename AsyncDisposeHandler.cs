@@ -19,6 +19,22 @@ namespace Open.Disposable
 		Func<ValueTask> _action;
 
 		protected override ValueTask OnDisposeAsync(AsyncDisposeMode mode)
-			=> Interlocked.Exchange(ref _action, null).Invoke();
+			=> Nullify(ref _action).Invoke();
+	}
+
+	public class AsyncDisposeHandler<T> : AsyncDisposeHandler
+	{
+		public AsyncDisposeHandler(T value, Func<ValueTask> action) : base(action)
+		{
+			Value = value;
+		}
+
+		public T Value { get; private set; }
+
+		protected override ValueTask OnDisposeAsync(AsyncDisposeMode mode)
+		{
+			Value = default;
+			return base.OnDisposeAsync(mode);
+		}
 	}
 }

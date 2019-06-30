@@ -24,16 +24,24 @@ Aggressively attempting to help out the garbage collector can be serious anti-pa
 
 ## Classes
 
-### DisposableBase
+### `DisposableBase`
 
 Simply implement `void OnDispose(bool calledExplicitly)` in order to manage disposal.
 
 If `calledExplicitly` is `true`, then the `.Dispose()` method was called by the code.  If `false`, the class was finalized by the GC.
 
-### AsyncDisposableBase
+> Note: `DisposableBase` exposes a `BeforeDispose` event which will be triggered once just before disposing commences.  This allows for others to react to this disposal event.  The `DisposableBase` is still considered 'live' until after the `BeforeDispose` event cycle has completed.
+
+### `AsyncDisposableBase`
+
+Inherits from `DisposableBase`.
 
 Simply implement `ValueTask OnDisposeAsync(AsyncDisposeMode mode)` in order to manage disposal.
 
 Dispose accordingly based upon the `AsyncDisposeMode`.
 
 It is also possible to override `void OnDispose(bool calledExplicitly)` to manage synchronous disposal separate from asynchronous disposal, but should it must be understood that overriding without calling `base.OnDispose(calledExplicitly)` will mean that `OnDisposeAsync(AsyncDisposeMode mode)` will not automatically be called.  Essentially meaning if you override, you should prepare for one or the other, but not both.
+
+### `DisposeHandler` & `AsyncDisposeHandler`
+
+A simple set of classes for triggering an action (once) when disposed.  Can also contain a value (T) which is cleared on dispose.

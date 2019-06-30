@@ -21,4 +21,20 @@ namespace Open.Disposable
 			=> Interlocked.Exchange(ref _action, null).Invoke();
 		
 	}
+
+	public class DisposeHandler<T> : DisposeHandler
+	{
+		public DisposeHandler(T value, Action action) :base(action)
+		{
+			Value = value;
+		}
+
+		public T Value { get; private set; }
+
+		protected override void OnDispose(bool calledExplicitly)
+		{
+			Value = default;
+			base.OnDispose(calledExplicitly);
+		}
+	}
 }

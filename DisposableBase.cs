@@ -32,7 +32,7 @@ namespace Open.Disposable
 		/// <param name="calledExplicitly">True if called through code in the runtime, or false if finalized by the garbage collector.</param>
 		protected abstract void OnDispose(bool calledExplicitly);
 
-		protected bool StartDispose(bool calledExplicitly)
+		internal protected bool StartDispose(bool calledExplicitly)
 		{
 			try
 			{
