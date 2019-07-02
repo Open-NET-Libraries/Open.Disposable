@@ -5,7 +5,7 @@ Provides a set of useful classes when implementing a disposable.
 ## Core principles
 
 * For most use cases, disposal should only occur once and be final.
-* Implementing `IDisposable` in combination with `IAsyncDisposable` is not typical but can be facilitated.
+* Implementing `IDisposable` in combination with `IAsyncDisposable` is not typical and should be avoided.  The consumer should understand the difference.
 * `.Dispose()` and `.DisposeAsync()` should be thread-safe and calling either multiple times should not block or throw. (Typically done through an interlock method.)
 
 ### Avoid anti-patterns
@@ -26,21 +26,13 @@ Aggressively attempting to help out the garbage collector can be serious anti-pa
 
 ### `DisposableBase`
 
-Simply implement `void OnDispose(bool calledExplicitly)` in order to manage disposal.
-
-If `calledExplicitly` is `true`, then the `.Dispose()` method was called by the code.  If `false`, the class was finalized by the GC.
+Simply implement `void OnDispose()` in order to manage disposal.
 
 > Note: `DisposableBase` exposes a `BeforeDispose` event which will be triggered once just before disposing commences.  This allows for others to react to this disposal event.  The `DisposableBase` is still considered 'live' until after the `BeforeDispose` event cycle has completed.
 
 ### `AsyncDisposableBase`
 
-Inherits from `DisposableBase`.
-
-Simply implement `ValueTask OnDisposeAsync(AsyncDisposeMode mode)` in order to manage disposal.
-
-Dispose accordingly based upon the `AsyncDisposeMode`.
-
-It is also possible to override `void OnDispose(bool calledExplicitly)` to manage synchronous disposal separate from asynchronous disposal, but should it must be understood that overriding without calling `base.OnDispose(calledExplicitly)` will mean that `OnDisposeAsync(AsyncDisposeMode mode)` will not automatically be called.  Essentially meaning if you override, you should prepare for one or the other, but not both.
+Simply implement `ValueTask OnDisposeAsync()` in order to manage disposal.
 
 ### `DisposeHandler` & `AsyncDisposeHandler`
 

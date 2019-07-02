@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Threading;
 
 namespace Open.Disposable
 {
@@ -17,8 +16,8 @@ namespace Open.Disposable
 
 		Action _action;
 
-		protected override void OnDispose(bool calledExplicitly)
-			=> Interlocked.Exchange(ref _action, null).Invoke();
+		protected override void OnDispose()
+			=> Nullify(ref _action).Invoke();
 		
 	}
 
@@ -31,10 +30,10 @@ namespace Open.Disposable
 
 		public T Value { get; private set; }
 
-		protected override void OnDispose(bool calledExplicitly)
+		protected override void OnDispose()
 		{
 			Value = default;
-			base.OnDispose(calledExplicitly);
+			base.OnDispose();
 		}
 	}
 }

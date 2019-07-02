@@ -161,7 +161,12 @@ namespace Open.Disposable
 
 		protected abstract void OnCleanup();
 
-		protected override void OnDispose(bool calledExplicitly)
+		protected override void OnDispose()
+		{
+			ResetTimer();
+		}
+
+		~DeferredCleanupBase()
 		{
 			ResetTimer();
 		}

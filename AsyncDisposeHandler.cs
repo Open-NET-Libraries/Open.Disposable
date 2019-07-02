@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Open.Disposable
@@ -18,7 +17,7 @@ namespace Open.Disposable
 
 		Func<ValueTask> _action;
 
-		protected override ValueTask OnDisposeAsync(AsyncDisposeMode mode)
+		protected override ValueTask OnDisposeAsync()
 			=> Nullify(ref _action).Invoke();
 	}
 
@@ -31,10 +30,10 @@ namespace Open.Disposable
 
 		public T Value { get; private set; }
 
-		protected override ValueTask OnDisposeAsync(AsyncDisposeMode mode)
+		protected override ValueTask OnDisposeAsync()
 		{
 			Value = default;
-			return base.OnDisposeAsync(mode);
+			return base.OnDisposeAsync();
 		}
 	}
 }
