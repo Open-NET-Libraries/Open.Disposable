@@ -35,6 +35,15 @@ namespace Open.Disposable
 		protected int DisposalState => _disposeState;
 		public bool WasDisposed => _disposeState != ALIVE && _disposeState != DISPOSE_CALLED;
 
+		protected bool AssertIsAlive()
+		{
+			if (WasDisposed)
+				throw new ObjectDisposedException(GetType().ToString());
+
+			return true;
+		}
+
+
 		/* This is important because some classes might react to disposal
          * and still need access to the live class before it's disposed.
          * In addition, no events should exist during or after disposal. */

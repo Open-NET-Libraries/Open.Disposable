@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -16,7 +15,7 @@ namespace Open.Disposable
 		public static bool AssertIsAlive(this IDisposalState state)
 		{
 			if (state.WasDisposed)
-				throw new ObjectDisposedException(state.ToString());
+				throw new ObjectDisposedException(state.GetType().ToString());
 
 			return true;
 		}
@@ -52,29 +51,6 @@ namespace Open.Disposable
 
 			target.Clear();
 			if (target is IDisposable t) t.Dispose();
-		}
-
-		const int MaxPoolArraySize = 1024 * 1024;
-		static void Dummy() { }
-
-		/// <summary>
-		/// Rents a buffer from the ArrayPool but returns a DisposeHandler with the buffer as it's value.
-		/// Facilitiates containing the temporary use of a buffer within a using block.
-		/// If the mimimumLength exceeds 1024*1024, an array will be created at that length for use.
-		/// </summary>
-		/// <typeparam name="T">The type of the array.</typeparam>
-		/// <param name="pool">The pool to get the array from.</param>
-		/// <param name="minimumLength">The minimum length of the array.</param>
-		/// <param name="clearArrayOnReturn">If true, will clear the array when it is returned to the pool.</param>
-		/// <returns>A DisposeHandler containing an array of type T[] that is at least minimumLength in length.</returns>
-		public static DisposeHandler<T[]> RentDisposable<T>(this ArrayPool<T> pool, int minimumLength, bool clearArrayOnReturn = false)
-		{
-			// If the size is too large, facilitate getting an array but don't manage the pool.
-			if (minimumLength > MaxPoolArraySize)
-				return new DisposeHandler<T[]>(new T[minimumLength], Dummy);
-
-			var a = pool.Rent(minimumLength);
-			return new DisposeHandler<T[]>(a, () => pool.Return(a, clearArrayOnReturn));
 		}
 	}
 }
