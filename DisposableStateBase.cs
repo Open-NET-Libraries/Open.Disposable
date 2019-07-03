@@ -62,7 +62,7 @@ namespace Open.Disposable
                  * Cover the easy majority case:
                  * Prevent adding events when already disposed.
                  */
-				this.AssertIsAlive();
+				AssertIsAlive();
 				if (_disposeState == DISPOSING)
 					throw new InvalidOperationException("Adding an event listener while disposing is not supported.");
 
