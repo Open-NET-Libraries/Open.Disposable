@@ -33,16 +33,22 @@ namespace Open.Disposable
 		// Since all write operations are done through Interlocked, no need for volatile.
 		private int _disposeState = ALIVE;
 		protected int DisposalState => _disposeState;
+
+		// Expected majority use will be 'alive'.
 		public bool WasDisposed => _disposeState != ALIVE && _disposeState != DISPOSE_CALLED;
 
-		protected bool AssertIsAlive()
+		/// <summary>
+		/// Will throw if the object is disposed or has started disposal.
+		/// </summary>
+		/// <param name="strict">When true, will also throw if between alive and disposing states.</param>
+		/// <returns>True if still alive.</returns>
+		protected bool AssertIsAlive(bool strict = false)
 		{
-			if (WasDisposed)
+			if (strict ? _disposeState != ALIVE : WasDisposed)
 				throw new ObjectDisposedException(GetType().ToString());
 
 			return true;
 		}
-
 
 		/* This is important because some classes might react to disposal
          * and still need access to the live class before it's disposed.
@@ -63,7 +69,7 @@ namespace Open.Disposable
                  * Prevent adding events when already disposed.
                  */
 				AssertIsAlive();
-				if (_disposeState == DISPOSING)
+				if (_disposeState != ALIVE) // Should not be adding events while event is firing...
 					throw new InvalidOperationException("Adding an event listener while disposing is not supported.");
 
 				/*
