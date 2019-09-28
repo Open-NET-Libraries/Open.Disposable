@@ -20,7 +20,7 @@ Thread safety is important and in many cases should be assured.  But when the 99
 
 #### Let the GC do its job
 
-Aggressively attempting to help out the garbage collector can be serious anti-pattern as you are simply slowing down your own application in order to avoid GC operations which might actually be helping your performance in total by deferring cleanup.
+Aggressively attempting to help out the garbage collector can be a serious anti-pattern as you are simply slowing down your own application in order to avoid GC operations which might actually be helping your performance in total by deferring cleanup.
 
 ## Classes
 
