@@ -11,9 +11,9 @@ namespace Open.Disposable
 	/// A base class for properly implementing IAsyncDisposable but also allowing for synchronous use of IDispose.
 	/// Only implementing OnDisposeAsync is enough to properly handle disposal.
 	/// </summary>
-    public abstract class AsyncDisposableBase : DisposableStateBase
+	public abstract class AsyncDisposableBase : DisposableStateBase
 #if NETSTANDARD2_1
-			,System.IAsyncDisposable
+			, System.IAsyncDisposable
 #endif
 	{
 		/// <summary>
@@ -24,45 +24,45 @@ namespace Open.Disposable
 
 		/// <inheritdoc />
 		public ValueTask DisposeAsync()
-        {
-            /*
+		{
+			/*
              * Note about the BeforeDispose event:
              * Although this is asynchronous, it's not this class' responsibility to decide how subscribers will behave.
              * A subscriber should smartly defer responses when possible, or only respond in a properly synchronous non-blockin way.
              */
 
-            if (!StartDispose())
-                return new ValueTask();
+			if (!StartDispose())
+				return new ValueTask();
 
-            var dispose = true;
-            try
-            {
-                var d = OnDisposeAsync();
-                if (!d.IsCompletedSuccessfully)
-                {
-                    dispose = false;
-                    return OnDisposeAsyncInternal(d);
-                }
-            }
-            finally
-            {
-                if (dispose) Disposed();
-            }
+			var dispose = true;
+			try
+			{
+				var d = OnDisposeAsync();
+				if (!d.IsCompletedSuccessfully)
+				{
+					dispose = false;
+					return OnDisposeAsyncInternal(d);
+				}
+			}
+			finally
+			{
+				if (dispose) Disposed();
+			}
 
-            return new ValueTask();
-        }
+			return new ValueTask();
+		}
 
-        private async ValueTask OnDisposeAsyncInternal(ValueTask onDispose)
-        {
-            try
-            {
-                await onDispose;
-            }
-            finally
-            {
-                Disposed();
-            }
-        }
+		private async ValueTask OnDisposeAsyncInternal(ValueTask onDispose)
+		{
+			try
+			{
+				await onDispose;
+			}
+			finally
+			{
+				Disposed();
+			}
+		}
 
-    }
+	}
 }

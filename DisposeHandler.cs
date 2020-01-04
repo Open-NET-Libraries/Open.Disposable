@@ -18,12 +18,12 @@ namespace Open.Disposable
 
 		protected override void OnDispose()
 			=> Nullify(ref _action).Invoke();
-		
+
 	}
 
 	public class DisposeHandler<T> : DisposeHandler
 	{
-		public DisposeHandler(T value, Action action) :base(action)
+		public DisposeHandler(T value, Action action) : base(action)
 		{
 			Value = value;
 		}
