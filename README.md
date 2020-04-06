@@ -2,6 +2,8 @@
 
 Provides a set of useful classes when implementing a disposable.
 
+[![NuGet](http://img.shields.io/nuget/v/Open.Disposable.svg)](https://www.nuget.org/packages/Open.Disposable/)
+
 ## Core principles
 
 * For most use cases, disposal should only occur once and be final.
