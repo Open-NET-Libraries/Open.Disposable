@@ -14,7 +14,7 @@ Part of the "Open" set of libraries.
     <PackageProjectUrl>https://github.com/Open-NET-Libraries/Open.Disposable/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Open-NET-Libraries/Open.Disposable/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>2.3.2</Version>
+    <Version>2.3.3</Version>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
