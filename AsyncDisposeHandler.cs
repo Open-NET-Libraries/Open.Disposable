@@ -32,7 +32,7 @@ namespace Open.Disposable
 
 		protected override ValueTask OnDisposeAsync()
 		{
-			Value = default;
+			Value = default!;
 			return base.OnDisposeAsync();
 		}
 	}

@@ -56,7 +56,7 @@ namespace Open.Disposable
 		#region Before Disposal
 		protected virtual void OnBeforeDispose() { }
 
-		private event EventHandler BeforeDisposeInternal;
+		private event EventHandler? BeforeDisposeInternal;
 		/// <summary>
 		/// BeforeDispose will be triggered once right before disposal commences.
 		/// </summary>
@@ -129,7 +129,7 @@ namespace Open.Disposable
 			where TNullable : class
 		{
 			var y = x;
-			x = null;
+			x = default!;
 			return y;
 		}
 
@@ -137,7 +137,7 @@ namespace Open.Disposable
 			where T : class, IDisposable
 		{
 			var y = x;
-			x = null;
+			x = default!;
 			y?.Dispose();
 		}
 

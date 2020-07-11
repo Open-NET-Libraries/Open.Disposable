@@ -32,7 +32,7 @@ namespace Open.Disposable
 
 		protected override void OnDispose()
 		{
-			Value = default;
+			Value = default!;
 			base.OnDispose();
 		}
 	}

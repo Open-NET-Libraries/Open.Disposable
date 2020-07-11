@@ -50,12 +50,12 @@ namespace Open.Disposable
 		}
 
 		private readonly object _timerSync = new object();
-		private Timer _cleanupTimer;
+		private Timer? _cleanupTimer;
 
 
 		protected void ResetTimer()
 		{
-			Timer ct2;
+			Timer? ct2;
 			lock (_timerSync)
 			{
 				ct2 = Interlocked.Exchange(ref _cleanupTimer, null);
@@ -138,7 +138,7 @@ namespace Open.Disposable
 			}
 		}
 
-		private void Cleanup(object state = null)
+		private void Cleanup(object? state = null)
 		{
 			if (WasDisposed)
 				return; // If another thread enters here after disposal don't allow.
