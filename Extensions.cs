@@ -1,6 +1,6 @@
 ﻿/*!
  * @author electricessence / https://github.com/electricessence/
- * Licensing: MIThttps://github.com/electricessence/Open.Disposable/blob/master/LISCENSE.md
+ * Licensing: MIT https://github.com/Open-NET-Libraries/Open.Disposable/blob/master/LICENSE.md
  */
 
 using System;
@@ -14,9 +14,8 @@ namespace Open.Disposable
 	{
 		public static bool AssertIsAlive(this IDisposalState state)
 		{
-			if (state.WasDisposed)
-				throw new ObjectDisposedException(state.GetType().ToString());
-
+			if (state is null) throw new ArgumentNullException(nameof(state));
+			if (state.WasDisposed) throw new ObjectDisposedException(state.GetType().ToString());
 			return true;
 		}
 
@@ -26,8 +25,7 @@ namespace Open.Disposable
 		/// <param name="target"></param>
 		public static void DisposeAll(this IEnumerable<IDisposable> target)
 		{
-			if (target == null)
-				throw new ArgumentNullException(nameof(target));
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			Contract.EndContractBlock();
 
 			foreach (var d in target)
@@ -42,7 +40,7 @@ namespace Open.Disposable
 		/// <param name="disposeContents">If true, will dispose of each item (if disposable) before calling clear.</param>
 		public static void Dispose<T>(this ICollection<T> target, bool disposeContents = false)
 		{
-			if (target == null) return;
+			if (target is null) return;
 
 			// Disposing of each may trigger events that cause removal of from the underlying collection so allow for that before clearing the collection.
 			if (disposeContents)

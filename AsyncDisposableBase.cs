@@ -1,6 +1,6 @@
 /*!
  * @author electricessence / https://github.com/electricessence/
- * Licensing: MIT https://github.com/electricessence/Open.Disposable/blob/master/LISCENSE.md
+ * Licensing: MIT https://github.com/Open-NET-Libraries/Open.Disposable/blob/master/LICENSE.md
  */
 
 using System.Threading.Tasks;
@@ -56,7 +56,7 @@ namespace Open.Disposable
 		{
 			try
 			{
-				await onDispose;
+				await onDispose.ConfigureAwait(false);
 			}
 			finally
 			{

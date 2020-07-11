@@ -1,6 +1,6 @@
 ﻿/*!
  * @author electricessence / https://github.com/electricessence/
- * Licensing: MIThttps://github.com/electricessence/Open.Disposable/blob/master/LISCENSE.md
+ * Licensing: MIT https://github.com/Open-NET-Libraries/Open.Disposable/blob/master/LICENSE.md
  */
 
 using System;
@@ -100,7 +100,9 @@ namespace Open.Disposable
 							// No past due action in order to prevent another thread from firing...
 							LastCleanup = DateTime.MaxValue;
 							DeferCleanup();
-							Task.Factory.StartNew(() => Cleanup());
+#pragma warning disable CA2008 // Last cleanup value protects against repeat task creation.
+							Task.Factory.StartNew(Cleanup);
+#pragma warning restore CA2008
 						}
 					}
 					break;
@@ -119,7 +121,7 @@ namespace Open.Disposable
 				if (WasDisposed) return;
 				IsRunning = true;
 
-				if (_cleanupTimer == null)
+				if (_cleanupTimer is null)
 					_cleanupTimer = new Timer(Cleanup, null, _cleanupDelay, Timeout.Infinite);
 				else
 					_cleanupTimer.Change(_cleanupDelay, Timeout.Infinite);
@@ -138,7 +140,8 @@ namespace Open.Disposable
 			}
 		}
 
-		private void Cleanup(object? state = null)
+		private void Cleanup() => Cleanup(null);
+		private void Cleanup(object? state)
 		{
 			if (WasDisposed)
 				return; // If another thread enters here after disposal don't allow.
@@ -147,10 +150,12 @@ namespace Open.Disposable
 			{
 				OnCleanup();
 			}
+#pragma warning disable CA1031 // Do not catch general exception types
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex.ToString());
 			}
+#pragma warning restore CA1031 // Do not catch general exception types
 
 			lock (_timerSync)
 			{
