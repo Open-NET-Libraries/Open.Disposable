@@ -1,9 +1,4 @@
-﻿/*!
- * @author electricessence / https://github.com/electricessence/
- * Licensing: MIT https://github.com/Open-NET-Libraries/Open.Disposable/blob/master/LICENSE.md
- */
-
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
