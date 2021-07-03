@@ -44,7 +44,7 @@ namespace Open.Disposable
 			private set;
 		}
 
-		private readonly object _timerSync = new object();
+		private readonly object _timerSync = new();
 		private Timer? _cleanupTimer;
 
 
@@ -95,9 +95,7 @@ namespace Open.Disposable
 							// No past due action in order to prevent another thread from firing...
 							LastCleanup = DateTime.MaxValue;
 							DeferCleanup();
-#pragma warning disable CA2008 // Last cleanup value protects against repeat task creation.
 							Task.Factory.StartNew(Cleanup);
-#pragma warning restore CA2008
 						}
 					}
 					break;
@@ -145,12 +143,10 @@ namespace Open.Disposable
 			{
 				OnCleanup();
 			}
-#pragma warning disable CA1031 // Do not catch general exception types
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex.ToString());
 			}
-#pragma warning restore CA1031 // Do not catch general exception types
 
 			lock (_timerSync)
 			{
