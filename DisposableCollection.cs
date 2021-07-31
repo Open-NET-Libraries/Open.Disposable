@@ -49,6 +49,18 @@ namespace Open.Disposable
 			return true;
 		}
 
+		public void Clear()
+		{
+			AssertIsAlive();
+			var first = Disposables.First;
+			while (first is not null)
+			{
+				Remove(first);
+				first = Disposables.First;
+			}
+			Debug.Assert(Lookup.Count == 0);
+		}
+
 		protected override void OnDispose()
 		{
 			var first = Disposables.First;
