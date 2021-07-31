@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Open.Disposable
 {
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1_OR_GREATER
 	public class AsyncDisposableCollection : AsyncDisposableBase
 	{
 		readonly LinkedList<object> Disposables = new();
