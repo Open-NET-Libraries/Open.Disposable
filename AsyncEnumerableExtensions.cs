@@ -31,8 +31,11 @@ namespace Open.Disposable
 			Task? task = null;
 			var handler = new AsyncDisposeHandler(async () =>
 			{
-				tokenSource.Cancel();
-				await task!;
+				if (!task!.IsCompleted)
+				{
+					tokenSource.Cancel();
+					await task!;
+				}
 				tokenSource.Dispose();
 			});
 
@@ -45,6 +48,10 @@ namespace Open.Disposable
 							observer.OnNext(enumerator.Current);
 						if (!token.IsCancellationRequested)
 							observer.OnCompleted();
+					}
+					catch (OperationCanceledException)
+					{
+
 					}
 					catch (Exception ex)
 					{
@@ -81,8 +88,11 @@ namespace Open.Disposable
 			Task? task = null;
 			var handler = new AsyncDisposeHandler(async () =>
 			{
-				tokenSource.Cancel();
-				await task!;
+				if (!task!.IsCompleted)
+				{
+					tokenSource.Cancel();
+					await task!;
+				}
 				tokenSource.Dispose();
 			});
 
@@ -95,6 +105,10 @@ namespace Open.Disposable
 							onNext?.Invoke(enumerator.Current);
 						if (!token.IsCancellationRequested)
 							onComplete?.Invoke();
+					}
+					catch (OperationCanceledException)
+					{
+
 					}
 					catch (Exception ex)
 					{
