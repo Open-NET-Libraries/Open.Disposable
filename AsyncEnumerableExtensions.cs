@@ -28,14 +28,15 @@ namespace Open.Disposable
 			var tokenSource = new CancellationTokenSource();
 			var token = tokenSource.Token;
 			var enumerator = source.GetAsyncEnumerator(token);
+			Task? task = null;
 			var handler = new AsyncDisposeHandler(async () =>
 			{
 				tokenSource.Cancel();
-				await enumerator.DisposeAsync();
+				await task!;
 				tokenSource.Dispose();
 			});
 
-			Task.Run(
+			task = Task.Run(
 				async () =>
 				{
 					try
@@ -49,8 +50,9 @@ namespace Open.Disposable
 					{
 						observer.OnError(ex);
 					}
-				})
-				.ContinueWith(async t => await handler.DisposeAsync());
+				});
+
+			task.ContinueWith(async t => await handler.DisposeAsync());
 
 			return handler;
 		}
@@ -76,14 +78,15 @@ namespace Open.Disposable
 			var tokenSource = new CancellationTokenSource();
 			var token = tokenSource.Token;
 			var enumerator = source.GetAsyncEnumerator(token);
+			Task? task = null;
 			var handler = new AsyncDisposeHandler(async () =>
 			{
 				tokenSource.Cancel();
-				await enumerator.DisposeAsync();
+				await task!;
 				tokenSource.Dispose();
 			});
 
-			Task.Run(
+			task = Task.Run(
 				async () =>
 				{
 					try
@@ -97,8 +100,9 @@ namespace Open.Disposable
 					{
 						onError?.Invoke(ex);
 					}
-				})
-				.ContinueWith(async t => await handler.DisposeAsync());
+				});
+
+			task.ContinueWith(async t => await handler.DisposeAsync());
 
 			return handler;
 		}
