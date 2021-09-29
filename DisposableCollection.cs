@@ -21,8 +21,7 @@ namespace Open.Disposable
 			disposable.BeforeDispose += Disposable_BeforeDispose;
 		}
 
-		private void Disposable_BeforeDispose(object? sender, EventArgs _)
-			=> Remove((IDisposable)sender!);
+		private void Disposable_BeforeDispose(object? sender, EventArgs _) => Remove((IDisposable)sender!);
 
 		private LinkedListNode<IDisposable> AddWithLookup(IDisposable disposable)
 		{
@@ -34,12 +33,14 @@ namespace Open.Disposable
 		}
 
 		public bool Remove(IDisposable disposable)
-			=> Lookup.TryGetValue(disposable, out var node) && node is not null && Remove(node);
+			=> Lookup.TryGetValue(disposable, out var node)
+			&& node is not null
+			&& Remove(node);
 
 		private bool Remove(LinkedListNode<IDisposable> node)
 		{
 			var list = node.List;
-			if (!Lookup.Remove(node.Value) || list == null)
+			if (!Lookup.Remove(node.Value) || list is null)
 				throw new InvalidOperationException("Potential concurrent access.");
 
 			list.Remove(node);

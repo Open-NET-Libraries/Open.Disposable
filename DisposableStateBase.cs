@@ -87,7 +87,7 @@ namespace Open.Disposable
 		private void FireBeforeDispose()
 		{
 			// Events should only fire if there are listeners...
-			if (BeforeDisposeInternal != null)
+			if (BeforeDisposeInternal is not null)
 			{
 				BeforeDisposeInternal(this, EventArgs.Empty);
 				BeforeDisposeInternal = null;
@@ -117,8 +117,7 @@ namespace Open.Disposable
 			return true;
 		}
 
-		protected void Disposed()
-			=> Interlocked.Exchange(ref _disposeState, DISPOSED); // State.Disposed
+		protected void Disposed() => Interlocked.Exchange(ref _disposeState, DISPOSED); // State.Disposed
 
 		protected static TNullable Nullify<TNullable>(ref TNullable x)
 			where TNullable : class

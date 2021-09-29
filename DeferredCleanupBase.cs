@@ -134,6 +134,7 @@ namespace Open.Disposable
 		}
 
 		private void Cleanup() => Cleanup(null);
+
 		private void Cleanup(object? state)
 		{
 			if (WasDisposed)
@@ -157,10 +158,7 @@ namespace Open.Disposable
 
 		protected abstract void OnCleanup();
 
-		protected override void OnDispose()
-		{
-			ResetTimer();
-		}
+		protected override void OnDispose() => ResetTimer();
 
 		~DeferredCleanupBase()
 		{

@@ -58,12 +58,14 @@ namespace Open.Disposable
 		}
 
 		public bool Remove(object disposable)
-			=> Lookup.TryGetValue(disposable, out var node) && node is not null && Remove(node);
+			=> Lookup.TryGetValue(disposable, out var node)
+			&& node is not null
+			&& Remove(node);
 
 		private bool Remove(LinkedListNode<object> node)
 		{
 			var list = node.List;
-			if (!Lookup.Remove(node.Value) || list == null)
+			if (!Lookup.Remove(node.Value) || list is null)
 				throw new InvalidOperationException("Potential concurrent access.");
 
 			list.Remove(node);
