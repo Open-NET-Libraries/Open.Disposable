@@ -1,7 +1,6 @@
-namespace Open.Disposable
+namespace Open.Disposable;
+
+public interface IDisposalState
 {
-	public interface IDisposalState
-	{
-		bool WasDisposed { get; }
-	}
+	bool WasDisposed { get; }
 }

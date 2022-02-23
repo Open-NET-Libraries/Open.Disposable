@@ -3,123 +3,129 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
+/* Unmerged change from project 'Open.Disposable (netstandard2.1)'
+Before:
 namespace Open.Disposable
 {
 #if NETSTANDARD2_1_OR_GREATER
-	public static class AsyncEnumerableExtensions
+After:
+namespace Open.Disposable;
+
+#if NETSTANDARD2_1_OR_GREATER
+*/
+namespace Open.Disposable;
+#if NETSTANDARD2_1_OR_GREATER
+public static class AsyncEnumerableExtensions
+{
+	/// <summary>
+	/// Allows subscribing to an IAsyncEnumerable.
+	/// </summary>
+	/// <remarks>
+	/// The 'BeforeDispose' event provided by the AsyncDisposeHandler allows for preemptive cleanup of a disposable.
+	/// </remarks>
+	/// <typeparam name="T">The type emitted from the source.</typeparam>
+	/// <param name="source">The IAsyncEnumerable providing the values for observation.</param>
+	/// <param name="observer">The receiving observer.</param>
+	/// <returns>An AsyncDisposeHandler (IAsyncDisposable).</returns>
+	public static AsyncDisposeHandler Subscribe<T>(
+		this IAsyncEnumerable<T> source,
+		IObserver<T> observer)
 	{
-		/// <summary>
-		/// Allows subscribing to an IAsyncEnumerable.
-		/// </summary>
-		/// <remarks>
-		/// The 'BeforeDispose' event provided by the AsyncDisposeHandler allows for preemptive cleanup of a disposable.
-		/// </remarks>
-		/// <typeparam name="T">The type emitted from the source.</typeparam>
-		/// <param name="source">The IAsyncEnumerable providing the values for observation.</param>
-		/// <param name="observer">The receiving observer.</param>
-		/// <returns>An AsyncDisposeHandler (IAsyncDisposable).</returns>
-		public static AsyncDisposeHandler Subscribe<T>(
-			this IAsyncEnumerable<T> source,
-			IObserver<T> observer)
-		{
-			if (source is null) throw new ArgumentNullException(nameof(source));
-			if (observer is null) throw new ArgumentNullException(nameof(observer));
+		if (source is null) throw new ArgumentNullException(nameof(source));
+		if (observer is null) throw new ArgumentNullException(nameof(observer));
 
-			var tokenSource = new CancellationTokenSource();
-			var token = tokenSource.Token;
-			var enumerator = source.GetAsyncEnumerator(token);
-			Task? task = null;
-			var handler = new AsyncDisposeHandler(async () =>
+		var tokenSource = new CancellationTokenSource();
+		var token = tokenSource.Token;
+		var enumerator = source.GetAsyncEnumerator(token);
+		Task? task = null;
+		var handler = new AsyncDisposeHandler(async () =>
+		{
+			if (!task!.IsCompleted)
 			{
-				if (!task!.IsCompleted)
+				tokenSource.Cancel();
+				await task!;
+			}
+			tokenSource.Dispose();
+		});
+
+		task = Task.Run(
+			async () =>
+			{
+				try
 				{
-					tokenSource.Cancel();
-					await task!;
+					while (await enumerator.MoveNextAsync())
+						observer.OnNext(enumerator.Current);
+					if (!token.IsCancellationRequested)
+						observer.OnCompleted();
 				}
-				tokenSource.Dispose();
+				catch (OperationCanceledException)
+				{
+				}
+				catch (Exception ex)
+				{
+					observer.OnError(ex);
+				}
 			});
 
-			task = Task.Run(
-				async () =>
-				{
-					try
-					{
-						while (await enumerator.MoveNextAsync())
-							observer.OnNext(enumerator.Current);
-						if (!token.IsCancellationRequested)
-							observer.OnCompleted();
-					}
-					catch (OperationCanceledException)
-					{
+		task.ContinueWith(async _ => await handler.DisposeAsync());
 
-					}
-					catch (Exception ex)
-					{
-						observer.OnError(ex);
-					}
-				});
-
-			task.ContinueWith(async t => await handler.DisposeAsync());
-
-			return handler;
-		}
-
-		/// <summary>
-		/// Allows subscribing to an IAsyncEnumerable.
-		/// </summary>
-		/// <remarks>
-		/// The 'BeforeDispose' event provided by the AsyncDisposeHandler allows for preemptive cleanup of a disposable.
-		/// </remarks>
-		/// <typeparam name="T">The type emitted from the source.</typeparam>
-		/// <param name="source">The IAsyncEnumerable providing the values for observation.</param>
-		/// <param name="onNext">The on-next delegate.</param>
-		/// <param name="onComplete">The on-complete delegate.</param>
-		/// <param name="onError">The on-error delegate.</param>
-		/// <returns>An AsyncDisposeHandler (IAsyncDisposable).</returns>
-		public static AsyncDisposeHandler Subscribe<T>(
-			this IAsyncEnumerable<T> source,
-			Action<T>? onNext,
-			Action? onComplete = null,
-			Action<Exception>? onError = null)
-		{
-			var tokenSource = new CancellationTokenSource();
-			var token = tokenSource.Token;
-			var enumerator = source.GetAsyncEnumerator(token);
-			Task? task = null;
-			var handler = new AsyncDisposeHandler(async () =>
-			{
-				if (!task!.IsCompleted)
-				{
-					tokenSource.Cancel();
-					await task!;
-				}
-				tokenSource.Dispose();
-			});
-
-			task = Task.Run(
-				async () =>
-				{
-					try
-					{
-						while (await enumerator.MoveNextAsync())
-							onNext?.Invoke(enumerator.Current);
-						if (!token.IsCancellationRequested)
-							onComplete?.Invoke();
-					}
-					catch (OperationCanceledException)
-					{
-
-					}
-					catch (Exception ex)
-					{
-						onError?.Invoke(ex);
-					}
-				});
-
-			task.ContinueWith(async t => await handler.DisposeAsync());
-
-			return handler;
-		}
+		return handler;
 	}
-#endif
+
+	/// <summary>
+	/// Allows subscribing to an IAsyncEnumerable.
+	/// </summary>
+	/// <remarks>
+	/// The 'BeforeDispose' event provided by the AsyncDisposeHandler allows for preemptive cleanup of a disposable.
+	/// </remarks>
+	/// <typeparam name="T">The type emitted from the source.</typeparam>
+	/// <param name="source">The IAsyncEnumerable providing the values for observation.</param>
+	/// <param name="onNext">The on-next delegate.</param>
+	/// <param name="onComplete">The on-complete delegate.</param>
+	/// <param name="onError">The on-error delegate.</param>
+	/// <returns>An AsyncDisposeHandler (IAsyncDisposable).</returns>
+	public static AsyncDisposeHandler Subscribe<T>(
+		this IAsyncEnumerable<T> source,
+		Action<T>? onNext,
+		Action? onComplete = null,
+		Action<Exception>? onError = null)
+	{
+		var tokenSource = new CancellationTokenSource();
+		var token = tokenSource.Token;
+		var enumerator = source.GetAsyncEnumerator(token);
+		Task? task = null;
+		var handler = new AsyncDisposeHandler(async () =>
+		{
+			if (!task!.IsCompleted)
+			{
+				tokenSource.Cancel();
+				await task!;
+			}
+			tokenSource.Dispose();
+		});
+
+		task = Task.Run(
+			async () =>
+			{
+				try
+				{
+					while (await enumerator.MoveNextAsync())
+						onNext?.Invoke(enumerator.Current);
+					if (!token.IsCancellationRequested)
+						onComplete?.Invoke();
+				}
+				catch (OperationCanceledException)
+				{
+				}
+				catch (Exception ex)
+				{
+					onError?.Invoke(ex);
+				}
+			});
+
+		task.ContinueWith(async _ => await handler.DisposeAsync());
+
+		return handler;
+	}
 }
+#endif

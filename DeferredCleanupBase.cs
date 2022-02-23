@@ -3,167 +3,163 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Open.Disposable
+namespace Open.Disposable;
+
+public abstract class DeferredCleanupBase : DisposableBase
 {
-	public abstract class DeferredCleanupBase : DisposableBase
+	public enum CleanupMode
 	{
-		public enum CleanupMode
+		ImmediateSynchronous, // Cleanup immediately within the current thread.
+		ImmediateSynchronousIfPastDue, // Cleanup immediately if time is past due.
+		ImmediateDeferred, // Cleanup immediately within another thread.
+		ImmediateDeferredIfPastDue, // Cleanup immedidately in another thread if time is past due.
+		Deferred // Extend the timer.
+	}
+
+	private int _cleanupDelay = 50;
+	// So far 50 ms seems optimal...
+	public int CleanupDelay
+	{
+		get => _cleanupDelay;
+		set
 		{
-			ImmediateSynchronous, // Cleanup immediately within the current thread.
-			ImmediateSynchronousIfPastDue, // Cleanup immediately if time is past due.
-			ImmediateDeferred, // Cleanup immediately within another thread.
-			ImmediateDeferredIfPastDue, // Cleanup immedidately in another thread if time is past due.
-			Deferred // Extend the timer.
+			if (value < 0)
+				throw new ArgumentOutOfRangeException(nameof(value), value, "Cannot be a negative value.");
+			_cleanupDelay = value;
 		}
+	}
 
-		private int _cleanupDelay = 50;
-		// So far 50 ms seems optimal...
-		public int CleanupDelay
+	public DateTime LastCleanup
+	{
+		get;
+		private set;
+	}
+
+	public bool IsCleanupPastDue
+		=> DateTime.Now.Ticks - (_cleanupDelay + 100) * TimeSpan.TicksPerMillisecond > LastCleanup.Ticks;
+
+	public bool IsRunning
+	{
+		get;
+		private set;
+	}
+
+	private readonly object _timerSync = new();
+	private Timer? _cleanupTimer;
+
+	protected void ResetTimer()
+	{
+		Timer? ct2;
+		lock (_timerSync)
 		{
-			get => _cleanupDelay;
-			set
-			{
-				if (value < 0)
-					throw new ArgumentOutOfRangeException(nameof(value), value, "Cannot be a negative value.");
-				_cleanupDelay = value;
-			}
+			ct2 = Interlocked.Exchange(ref _cleanupTimer, null);
 		}
+		ct2?.Dispose();
+	}
 
-		public DateTime LastCleanup
+	public void SetCleanup(CleanupMode mode = CleanupMode.Deferred)
+	{
+		if (WasDisposed)
+			return;
+
+		switch (mode)
 		{
-			get;
-			private set;
-		}
+			case CleanupMode.ImmediateSynchronousIfPastDue:
+				if (!IsRunning)
+					goto case CleanupMode.Deferred;
 
-		public bool IsCleanupPastDue
-			=> DateTime.Now.Ticks - (_cleanupDelay + 100) * TimeSpan.TicksPerMillisecond > LastCleanup.Ticks;
+				if (IsCleanupPastDue)
+					goto case CleanupMode.ImmediateSynchronous;
 
-		public bool IsRunning
-		{
-			get;
-			private set;
-		}
+				break;
 
-		private readonly object _timerSync = new();
-		private Timer? _cleanupTimer;
+			case CleanupMode.ImmediateSynchronous:
+				Cleanup();
+				break;
 
+			case CleanupMode.ImmediateDeferredIfPastDue:
+				if (!IsRunning)
+					goto case CleanupMode.Deferred;
 
-		protected void ResetTimer()
-		{
-			Timer? ct2;
-			lock (_timerSync)
-			{
-				ct2 = Interlocked.Exchange(ref _cleanupTimer, null);
-			}
-			ct2?.Dispose();
-		}
+				if (IsCleanupPastDue)
+					goto case CleanupMode.ImmediateDeferred;
 
-		public void SetCleanup(CleanupMode mode = CleanupMode.Deferred)
-		{
-			if (WasDisposed)
-				return;
+				break;
 
-			switch (mode)
-			{
-				case CleanupMode.ImmediateSynchronousIfPastDue:
-					if (!IsRunning)
-						goto case CleanupMode.Deferred;
-
-					if (IsCleanupPastDue)
-						goto case CleanupMode.ImmediateSynchronous;
-
-					break;
-
-				case CleanupMode.ImmediateSynchronous:
-					Cleanup();
-					break;
-
-				case CleanupMode.ImmediateDeferredIfPastDue:
-					if (!IsRunning)
-						goto case CleanupMode.Deferred;
-
-					if (IsCleanupPastDue)
-						goto case CleanupMode.ImmediateDeferred;
-
-					break;
-
-				case CleanupMode.ImmediateDeferred:
-					lock (_timerSync)
+			case CleanupMode.ImmediateDeferred:
+				lock (_timerSync)
+				{
+					if (!WasDisposed && LastCleanup != DateTime.MaxValue)
 					{
-						if (!WasDisposed && LastCleanup != DateTime.MaxValue)
-						{
-							// No past due action in order to prevent another thread from firing...
-							LastCleanup = DateTime.MaxValue;
-							DeferCleanup();
-							Task.Factory.StartNew(Cleanup);
-						}
+						// No past due action in order to prevent another thread from firing...
+						LastCleanup = DateTime.MaxValue;
+						DeferCleanup();
+						Task.Factory.StartNew(Cleanup);
 					}
-					break;
+				}
+				break;
 
-				case CleanupMode.Deferred:
-					DeferCleanup();
-					break;
-			}
+			case CleanupMode.Deferred:
+				DeferCleanup();
+				break;
 		}
+	}
 
-		public void DeferCleanup()
+	public void DeferCleanup()
+	{
+		if (WasDisposed) return;
+		lock (_timerSync)
 		{
 			if (WasDisposed) return;
-			lock (_timerSync)
-			{
-				if (WasDisposed) return;
-				IsRunning = true;
+			IsRunning = true;
 
-				if (_cleanupTimer is null)
-					_cleanupTimer = new Timer(Cleanup, null, _cleanupDelay, Timeout.Infinite);
-				else
-					_cleanupTimer.Change(_cleanupDelay, Timeout.Infinite);
-			}
+			if (_cleanupTimer is null)
+				_cleanupTimer = new Timer(Cleanup, null, _cleanupDelay, Timeout.Infinite);
+			else
+				_cleanupTimer.Change(_cleanupDelay, Timeout.Infinite);
 		}
+	}
 
-		public void ClearCleanup()
+	public void ClearCleanup()
+	{
+		lock (_timerSync)
 		{
-			lock (_timerSync)
-			{
-				IsRunning = false;
-				LastCleanup = DateTime.MaxValue;
-				//if(_cleanupTimer!=null)
-				//_cleanupTimer.Change(Timeout.Infinite, Timeout.Infinite);
-				ResetTimer();
-			}
-		}
-
-		private void Cleanup() => Cleanup(null);
-
-		private void Cleanup(object? state)
-		{
-			if (WasDisposed)
-				return; // If another thread enters here after disposal don't allow.
-
-			try
-			{
-				OnCleanup();
-			}
-			catch (Exception ex)
-			{
-				Debug.WriteLine(ex.ToString());
-			}
-
-			lock (_timerSync)
-			{
-				LastCleanup = DateTime.Now;
-			}
-
-		}
-
-		protected abstract void OnCleanup();
-
-		protected override void OnDispose() => ResetTimer();
-
-		~DeferredCleanupBase()
-		{
+			IsRunning = false;
+			LastCleanup = DateTime.MaxValue;
+			//if(_cleanupTimer!=null)
+			//_cleanupTimer.Change(Timeout.Infinite, Timeout.Infinite);
 			ResetTimer();
 		}
+	}
 
+	private void Cleanup() => Cleanup(null);
+
+	private void Cleanup(object? state)
+	{
+		if (WasDisposed)
+			return; // If another thread enters here after disposal don't allow.
+
+		try
+		{
+			OnCleanup();
+		}
+		catch (Exception ex)
+		{
+			Debug.WriteLine(ex.ToString());
+		}
+
+		lock (_timerSync)
+		{
+			LastCleanup = DateTime.Now;
+		}
+	}
+
+	protected abstract void OnCleanup();
+
+	protected override void OnDispose() => ResetTimer();
+
+	~DeferredCleanupBase()
+	{
+		ResetTimer();
 	}
 }
