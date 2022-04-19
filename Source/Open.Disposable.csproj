@@ -39,6 +39,10 @@ Part of the "Open" set of libraries.		</Description>
 	<ItemGroup>
 		<None Remove=".git" />
 		<None Remove=".gitignore" />
+		<None Include="..\README.md">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+		</None>
 		<None Include="logo.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
@@ -47,13 +51,6 @@ Part of the "Open" set of libraries.		</Description>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
 		<PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Update="README.md">
-	    <Pack>True</Pack>
-	    <PackagePath>\</PackagePath>
-	  </None>
 	</ItemGroup>
 
 </Project>
