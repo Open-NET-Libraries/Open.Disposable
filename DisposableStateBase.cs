@@ -37,13 +37,19 @@ public abstract class DisposableStateBase : IDisposalState
 	/// </summary>
 	/// <param name="strict">When true, will also throw if between alive and disposing states.</param>
 	/// <returns>True if still alive.</returns>
-	protected bool AssertIsAlive(bool strict = false)
+	protected bool AssertIsAlive(bool strict)
 	{
 		if (strict ? _disposeState != ALIVE : WasDisposed)
 			throw new ObjectDisposedException(GetType().ToString());
 
 		return true;
 	}
+
+	protected bool AssertIsAlive() => AssertIsAlive(false);
+
+	private Func<bool>? _assertIsAliveDelegate;
+	public Func<bool> AssertIsAliveDelegate
+		=> _assertIsAliveDelegate ??= AssertIsAlive;
 
 	/* This is important because some classes might react to disposal
          * and still need access to the live class before it's disposed.
@@ -119,7 +125,8 @@ public abstract class DisposableStateBase : IDisposalState
 		return true;
 	}
 
-	protected void Disposed() => Interlocked.Exchange(ref _disposeState, DISPOSED); // State.Disposed
+	protected void Disposed()
+		=> Interlocked.Exchange(ref _disposeState, DISPOSED); // State.Disposed
 
 	protected static TNullable Nullify<TNullable>(ref TNullable x)
 		where TNullable : class

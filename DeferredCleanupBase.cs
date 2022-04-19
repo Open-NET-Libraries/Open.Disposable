@@ -94,7 +94,7 @@ public abstract class DeferredCleanupBase : DisposableBase
 						// No past due action in order to prevent another thread from firing...
 						LastCleanup = DateTime.MaxValue;
 						DeferCleanup();
-						Task.Factory.StartNew(Cleanup);
+						Task.Factory.StartNew(CleanupDelegate);
 					}
 				}
 				break;
@@ -131,6 +131,9 @@ public abstract class DeferredCleanupBase : DisposableBase
 			ResetTimer();
 		}
 	}
+
+	private Action? _cleanup;
+	private Action CleanupDelegate => _cleanup ??= Cleanup;
 
 	private void Cleanup() => Cleanup(null);
 
