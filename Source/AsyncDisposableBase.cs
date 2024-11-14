@@ -7,14 +7,14 @@ namespace Open.Disposable;
 /// Only implementing OnDisposeAsync is enough to properly handle disposal.
 /// </summary>
 public abstract class AsyncDisposableBase : DisposableStateBase
-#if NETSTANDARD2_1
+#if NETSTANDARD2_0
+#else
 		, System.IAsyncDisposable
 #endif
 {
 	/// <summary>
 	/// Without overriding OnDispose, OnDisposeAsync will be called no matter what depending on how the object is disposed.
 	/// </summary>
-	/// <param name="asynchronous">If true, was called by .DisposeAsync(), otherwise.</param>
 	protected abstract ValueTask OnDisposeAsync();
 
 	/// <inheritdoc />
@@ -22,10 +22,10 @@ public abstract class AsyncDisposableBase : DisposableStateBase
 	public ValueTask DisposeAsync()
 	{
 		/*
-             * Note about the BeforeDispose event:
-             * Although this is asynchronous, it's not this class' responsibility to decide how subscribers will behave.
-             * A subscriber should smartly defer responses when possible, or only respond in a properly synchronous non-blockin way.
-             */
+        * Note about the BeforeDispose event:
+        * Although this is asynchronous, it's not this class' responsibility to decide how subscribers will behave.
+        * A subscriber should smartly defer responses when possible, or only respond in a properly synchronous non-blockin way.
+        */
 
 		if (!StartDispose())
 			return new ValueTask();

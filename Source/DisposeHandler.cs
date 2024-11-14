@@ -2,21 +2,18 @@ using System;
 
 namespace Open.Disposable;
 
-public class DisposeHandler : DisposableBase
+public class DisposeHandler(Action action)
+	: DisposableBase
 {
-	public DisposeHandler(Action action)
-		=> _action = action ?? throw new ArgumentNullException(nameof(action));
-
-	Action _action;
+	Action _action = action ?? throw new ArgumentNullException(nameof(action));
 
 	protected override void OnDispose() => Nullify(ref _action).Invoke();
 }
 
-public class DisposeHandler<T> : DisposeHandler
+public class DisposeHandler<T>(T value, Action action)
+	: DisposeHandler(action)
 {
-	public DisposeHandler(T value, Action action) : base(action) => Value = value;
-
-	public T Value { get; private set; }
+	public T Value { get; private set; } = value;
 
 	protected override void OnDispose()
 	{

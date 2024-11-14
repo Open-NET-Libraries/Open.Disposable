@@ -7,7 +7,7 @@ namespace Open.Disposable;
 public class DisposableCollection : DisposableBase
 {
 	readonly LinkedList<IDisposable> Disposables = new();
-	readonly Dictionary<IDisposable, LinkedListNode<IDisposable>> Lookup = new();
+	readonly Dictionary<IDisposable, LinkedListNode<IDisposable>> Lookup = [];
 
 	public void Add(IDisposable disposable)
 	{

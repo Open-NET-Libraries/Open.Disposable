@@ -3,20 +3,18 @@ using System.Threading.Tasks;
 
 namespace Open.Disposable;
 
-public class AsyncDisposeHandler : AsyncDisposableBase
+public class AsyncDisposeHandler(Func<ValueTask> action)
+	: AsyncDisposableBase
 {
-	public AsyncDisposeHandler(Func<ValueTask> action) => _action = action ?? throw new ArgumentNullException(nameof(action));
-
-	Func<ValueTask> _action;
+	Func<ValueTask> _action = action ?? throw new ArgumentNullException(nameof(action));
 
 	protected override ValueTask OnDisposeAsync() => Nullify(ref _action).Invoke();
 }
 
-public class AsyncDisposeHandler<T> : AsyncDisposeHandler
+public class AsyncDisposeHandler<T>(T value, Func<ValueTask> action)
+	: AsyncDisposeHandler(action)
 {
-	public AsyncDisposeHandler(T value, Func<ValueTask> action) : base(action) => Value = value;
-
-	public T Value { get; private set; }
+	public T Value { get; private set; } = value;
 
 	protected override ValueTask OnDisposeAsync()
 	{

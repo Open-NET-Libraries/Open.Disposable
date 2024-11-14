@@ -43,8 +43,11 @@ public abstract class DeferredCleanupBase : DisposableBase
 		get;
 		private set;
 	}
-
+#if NET9_0_OR_GREATER
+	private readonly Lock _timerSync = new();
+#else
 	private readonly object _timerSync = new();
+#endif
 	private Timer? _cleanupTimer;
 
 	protected void ResetTimer()

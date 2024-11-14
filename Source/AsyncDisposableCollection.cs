@@ -1,24 +1,16 @@
-﻿using System;
+﻿#if NETSTANDARD2_0
+# else
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-/* Unmerged change from project 'Open.Disposable (netstandard2.1)'
-Before:
-namespace Open.Disposable
-{
-#if NETSTANDARD2_1_OR_GREATER
-After:
 namespace Open.Disposable;
 
-#if NETSTANDARD2_1_OR_GREATER
-*/
-namespace Open.Disposable;
-#if NETSTANDARD2_1_OR_GREATER
 public class AsyncDisposableCollection : AsyncDisposableBase
 {
 	readonly LinkedList<object> Disposables = new();
-	readonly Dictionary<object, LinkedListNode<object>> Lookup = new();
+	readonly Dictionary<object, LinkedListNode<object>> Lookup = [];
 
 	public void Add(object disposable)
 	{
