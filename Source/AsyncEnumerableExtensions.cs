@@ -34,7 +34,7 @@ public static class AsyncEnumerableExtensions
 			if (!task!.IsCompleted)
 			{
 				tokenSource.Cancel();
-				await task!;
+				await task.ConfigureAwait(false);
 			}
 			tokenSource.Dispose();
 		});
@@ -44,7 +44,7 @@ public static class AsyncEnumerableExtensions
 			{
 				try
 				{
-					while (await enumerator.MoveNextAsync())
+					while (await enumerator.MoveNextAsync().ConfigureAwait(false))
 						observer.OnNext(enumerator.Current);
 					if (!token.IsCancellationRequested)
 						observer.OnCompleted();
@@ -58,7 +58,7 @@ public static class AsyncEnumerableExtensions
 				}
 			});
 
-		task.ContinueWith(async _ => await handler.DisposeAsync());
+		task.ContinueWith(async _ => await handler.DisposeAsync().ConfigureAwait(false));
 
 		return handler;
 	}
@@ -90,7 +90,7 @@ public static class AsyncEnumerableExtensions
 			if (!task!.IsCompleted)
 			{
 				tokenSource.Cancel();
-				await task!;
+				await task!.ConfigureAwait(false);
 			}
 			tokenSource.Dispose();
 		});
@@ -100,7 +100,7 @@ public static class AsyncEnumerableExtensions
 			{
 				try
 				{
-					while (await enumerator.MoveNextAsync())
+					while (await enumerator.MoveNextAsync().ConfigureAwait(false))
 						onNext?.Invoke(enumerator.Current);
 					if (!token.IsCancellationRequested)
 						onComplete?.Invoke();
@@ -114,7 +114,7 @@ public static class AsyncEnumerableExtensions
 				}
 			});
 
-		task.ContinueWith(async _ => await handler.DisposeAsync());
+		task.ContinueWith(async _ => await handler.DisposeAsync().ConfigureAwait(false));
 
 		return handler;
 	}

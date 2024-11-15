@@ -97,7 +97,7 @@ public class AsyncDisposableCollection : AsyncDisposableBase
 			switch (first.Value)
 			{
 				case IAsyncDisposable a:
-					await a.DisposeAsync();
+					await a.DisposeAsync().ConfigureAwait(false);
 					break;
 
 				case IDisposable d:

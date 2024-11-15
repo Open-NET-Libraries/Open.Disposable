@@ -5,4 +5,5 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "<Pending>", Scope = "member", Target = "~M:Open.Disposable.DisposableBase.Dispose")]
+[assembly: SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Scope = "member", Target = "~M:Open.Disposable.DisposableBase.Dispose")]
+[assembly: SuppressMessage("Usage", "CA1816:Dispose methods should call SuppressFinalize", Scope = "member", Target = "~M:Open.Disposable.AsyncDisposableBase.DisposeAsync~System.Threading.Tasks.ValueTask")]
